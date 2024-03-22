@@ -1,0 +1,604 @@
+
+corpus(`
+    My name is novabot, nice to meet you.
+    I am just here, ready to help.
+    my developers are tech tempests
+    I am always eager to help. Ask me anything.
+    I am an intelligent virtual assistant designed for helping individuals with mental health issues such as ADHD, anxiety, depression, etc.
+    I know everything about this application and can assist you with any request.
+    I can help with a lot of things: answer a question and perform different tasks. Just give me a try.
+    Not that I am know-it-all, but I am an expert in this application.
+    I am an AI, not human, but you can comfortablely speak to me as you would to a person.
+    I am a machine, but a smart one. Let me prove it.
+    I can assure you I am real. You cannot touch me, but you can always talk to me.
+    My job is to conduct a diagnosis to help certain individuals with ADHD,specifically teens aged from 15-19 years of age.
+    I come from St.Joseph's college of engineering,OMR,Chennai
+    I was deployed in 2024 - fairly young but powerful and willing to learn.
+    I only speak English and JavaScript now, but I'm learning more. And I can fake a British or Indian accent if you want me to.
+    I support both voice and text inputs - you can tap the assistant button to use your voice or type your request in the text box.
+    I can run across multiple platforms on different devices. Web, iOS, Android, Flutter, React Native, Ionic and Apache Cordova - I am pretty flexible.
+    In the application, I look like a round blue button with a microphone on top. But you can style me in many different ways.
+    You can replace the default wake word phrase with a custom one that suits you best.
+    Alexa, Siri, Bixbi and Google Assistant are great at their job. As for me, I am really smart, accurate (and modest, too!). And am always right here, in the application.
+    I'm doing fine, thank you.
+    I'm having a great day, hope you are too.
+    I don't have pets, maybe someday.
+    I am made up of code, so I am pretty lightweight.
+   ADHD is a neurodevelopmental disorder characterized by difficulties in attention, hyperactivity, and impulsivity, impacting daily functioning and often requiring a combination of therapies for management
+   
+   
+    
+`);
+
+intent('Hello world', p => {
+    p.play('Hi there');
+});
+
+intent(
+    'Who\'s there',
+    'What\'s your name',
+    p => {
+        p.play(
+            'My name is novabot.',
+            'It\'s novabot.',
+        );
+    },
+);
+
+
+let workingMemoryQuiz = context((p) => {
+  let totalPoints = 0;
+
+  follow('Repeat the following sequence of numbers in reverse order $(SEQUENCE *)', (p) => {
+    let correctAnswer = p.SEQUENCE.value.split(',').reverse().join(', ');
+    if (p.userInput.value.toLowerCase() === correctAnswer.toLowerCase()) {
+      totalPoints += 4;
+      p.play('Correct! You got 4 points for this question.');
+    } else {
+      p.play('Incorrect answer. You got 0 points for this question.');
+    }
+  });
+
+ follow('Listen carefully and repeat the following sequence of words in the same order $(SEQUENCE *)', (p) => {
+    let correctAnswer = p.SEQUENCE.value;
+    if (p.userInput.value.toLowerCase() === correctAnswer.toLowerCase()) {
+      totalPoints += 4;
+      p.play('Correct! You got 4 points for this question.');
+    } else {
+      p.play('Incorrect answer. You got 0 points for this question.');
+    }
+  });
+
+  follow('Rearrange the following letters to form a meaningful word $(LETTERS *)', (p) => {
+    let correctAnswer = 'level';
+    if (p.userInput.value.toLowerCase() === correctAnswer) {
+      totalPoints += 4;
+      p.play('Correct! You got 4 points for this question.');
+    } else {
+      p.play('Incorrect answer. You got 0 points for this question.');
+    }
+  });
+
+  p.play(`Your Working Memory score ${getRating(totalPoints, 12, [10, 7, 4, 2, 0])}`);
+});
+
+let responseInhibitionQuiz = context((p) => {
+  let totalPoints = 0;
+
+  follow('Say the word "RED" when you see a blue square, and say nothing when you see a red square.', (p) => {
+    if (p.userInput.value.toLowerCase() === 'red') {
+      totalPoints += 3;
+      p.play('Correct response! You got 3 points for this question.');
+    } else {
+      p.play('Incorrect response. You got 0 points for this question.');
+    }
+  });
+
+  follow('Tap the table once when you hear the word "CLAP," and do nothing when you hear the word "TAP."', (p) => {
+    if (p.userInput.value.toLowerCase() === 'clap') {
+      totalPoints += 3;
+      p.play('Correct response! You got 3 points for this question.');
+    } else {
+      p.play('Incorrect response. You got 0 points for this question.');
+    }
+  });
+
+  p.play(`Your Response Inhibition score ${getRating(totalPoints, 6, [6, 5, 4, 2, 0])}`);
+});
+
+let processingSpeedQuiz = context((p) => {
+  let totalPoints = 0;
+
+  follow('How many words can you generate starting with the letter "S" in 20 seconds?', (p) => {
+    let words = p.userInput.value.toLowerCase().split(' ').filter(word => word.startsWith('s'));
+    if (words.length >= 10) {
+      totalPoints += 4;
+      p.play('Excellent! You got 4 points for this question.');
+    } else if (words.length >= 6) {
+      totalPoints += 3;
+      p.play('Good job! You got 3 points for this question.');
+    } else if (words.length >= 3) {
+      totalPoints += 2;
+      p.play('Not bad. You got 2 points for this question.');
+    } else {
+      totalPoints += 1;
+      p.play('You got 1 point for this question.');
+    }
+  });
+
+  follow('Complete the following pattern as quickly as possible 2, 4, 6, _, _, _', (p) => {
+    let correctAnswer = '8, 10, 12';
+    if (p.userInput.value.toLowerCase() === correctAnswer.toLowerCase()) {
+      p.play('Correct! How long did it take you to answer?');
+      follow('$(TIME *)', (q) => {
+        if (q.TIME.value.includes('second')) {
+          if (parseInt(q.TIME.value) <= 5) {
+            totalPoints += 4;
+            p.play('Excellent! You got 4 points for this question.');
+          } else if (parseInt(q.TIME.value) <= 10) {
+            totalPoints += 3;
+            p.play('Good job! You got 3 points for this question.');
+          } else {
+            totalPoints += 2;
+            p.play('Not bad. You got 2 points for this question.');
+          }
+        } else {
+          p.play('Incorrect answer. You got 0 points for this question.');
+        }
+      });
+    } else {
+      p.play('Incorrect answer. You got 0 points for this question.');
+    }
+  });
+
+  p.play(`Your Processing Speed score: ${getRating(totalPoints, 12, [10, 7, 4, 2, 0])}`);
+});
+
+let reactionTimeQuiz = context((p) => {
+  let totalPoints = 0;
+
+  p.play('Press the space bar as soon as you see a green circle appear on the screen.');
+  // Implement logic to measure reaction time and award points accordingly
+
+  p.play('Say "GO" as soon as you hear a beep.');
+  // Implement logic to measure reaction time and award points accordingly
+
+  p.play(`Your Reaction Time Variability score: ${getRating(totalPoints, 8, [7, 5, 3, 2, 0])}`);
+});
+
+let criticalThinkingQuiz = context((p) => {
+  let totalPoints = 0;
+
+  follow('Describe a situation where you felt overwhelmed or anxious, and how you coped with it.', (p) => {
+    let response = p.userInput.value.toLowerCase();
+    if (response.includes('healthy') || response.includes('positive')) {
+      totalPoints += 4;
+      p.play('Good response! You got 4 points for this question.');
+    } else if (response.includes('difficult')) {
+      totalPoints += 2;
+      p.play('You got 2 points for this question.');
+    } else {
+      p.play('Your response suggests unhealthy coping mechanisms. You got 0 points for this question.');
+    }
+  });
+
+  follow('Have you ever experienced intrusive thoughts or disturbing images that you couldn\'t get out of your mind?', (p) => {
+    let response = p.userInput.value.toLowerCase();
+    if (response.includes('no') || response.includes('healthy')) {
+      totalPoints += 4;
+      p.play('Good response! You got 4 points for this question.');
+    } else if (response.includes('occasional')) {
+      totalPoints += 2;
+      p.play('You got 2 points for this question.');
+    } else {
+      p.play('Your response suggests frequent intrusive thoughts or disturbing images. You got 0 points for this question.');
+    }
+  });
+
+  follow('Describe your sleep patterns and any difficulties you may have with sleeping.', (p) => {
+    let response = p.userInput.value.toLowerCase();
+    if (response.includes('healthy') || response.includes('good')) {
+      totalPoints += 4;
+      p.play('Good response! You got 4 points for this question.');
+    } else if (response.includes('difficult') || response.includes('some')) {
+      totalPoints += 2;
+      p.play('You got 2 points for this question.');
+    } else {
+      p.play('Your response suggests significant sleep disturbances. You got 0 points for this question.');
+    }
+  });
+
+  follow('How would you describe your mood and energy levels over the past few weeks?', (p) => {
+    let response = p.userInput.value.toLowerCase();
+    if (response.includes('stable') || response.includes('appropriate')) {
+      totalPoints += 4;
+      p.play('Good response! You got 4 points for this question.');
+    } else if (response.includes('fluctuations') || response.includes('some')) {
+      totalPoints += 2;
+      p.play('You got 2 points for this question.');
+    } else {
+      p.play('Your response suggests significant mood disturbances or persistent low energy. You got 0 points for this question.');
+    }
+  });
+
+  follow('Have you ever experienced a loss of interest or pleasure in activities you used to enjoy?', (p) => {
+    let response = p.userInput.value.toLowerCase();
+    if (response.includes('no') || response.includes('maintained')) {
+      totalPoints += 4;
+      p.play('Good response! You got 4 points for this question.');
+    } else if (response.includes('occasional')) {
+      totalPoints += 2;
+      p.play('You got 2 points for this question.');
+    } else {
+      p.play('Your response suggests persistent loss of interest or pleasure in activities. You got 0 points for this question.');
+    }
+  });
+
+  follow('Describe your relationships with others and any difficulties you may have in social situations.', (p) => {
+    let response = p.userInput.value.toLowerCase();
+    if (response.includes('healthy') || response.includes('comfortable')) {
+      totalPoints += 4;
+      p.play('Good response! You got 4 points for this question.');
+    } else if (response.includes('difficult') || response.includes('some')) {
+      totalPoints += 2;
+      p.play('You got 2 points for this question.');
+    } else {
+      p.play('Your response suggests significant social impairment or avoidance of social situations. You got 0 points for this question.');
+    }
+  });
+
+  p.play(`Your Critical Thinking score: ${getRating(totalPoints, 28, [25, 21, 17, 13, 0])}`);
+});
+
+let quizMenu = context((p) => {
+  follow('start quiz', (p) => {
+    p.play('Welcome to the cognitive skills quiz! Which skill would you like to test?');
+    p.play('1. Working Memory');
+    p.play('2. Response Inhibition');
+    p.play('3. Processing Speed');
+    p.play('4. Reaction Time Variability');
+    p.play('5. Critical Thinking');
+  });
+
+  follow('(1|working memory)', (p) => {
+    p.then(workingMemoryQuiz);
+  });
+
+  follow('(2|response inhibition)', (p) => {
+    p.then(responseInhibitionQuiz);
+  });
+
+  follow('(3|processing speed)', (p) => {
+    p.then(processingSpeedQuiz);
+  });
+
+  follow('(4|reaction time variability)', (p) => {
+    p.then(reactionTimeQuiz);
+  });
+
+  follow('(5|critical thinking)', (p) => {
+    p.then(criticalThinkingQuiz);
+  });
+});
+
+intent('start quiz', (p) => {
+  p.then(quizMenu);
+});
+
+function getRating(points, maxPoints, thresholds) {
+  const ratio = points / maxPoints;
+  if (ratio >= thresholds[0] / maxPoints) return "Excellent";
+  if (ratio >= thresholds[1] / maxPoints) return "Good";
+  if (ratio >= thresholds[2] / maxPoints) return "Average";
+  if (ratio >= thresholds[3] / maxPoints) return "Below Average";
+  return "Poor";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
